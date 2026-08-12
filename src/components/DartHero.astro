@@ -55,11 +55,19 @@
     }
   }
 
+  /* .is-static wird von JS gesetzt: entweder wegen prefers-reduced-motion,
+     oder als Fallback, falls die 3D-Initialisierung fehlschlägt (z. B. kein
+     WebGL verfügbar) – in beiden Fällen soll die Sektion kompakt zusammen-
+     klappen statt eine leere/schwarze Scroll-Fläche zu hinterlassen. */
   @media (prefers-reduced-motion: reduce) {
     .dart-hero {
       height: auto;
       min-height: 0;
     }
+  }
+  .dart-hero.is-static {
+    height: auto !important;
+    min-height: 0 !important;
   }
 
   .dart-hero__sticky {
@@ -82,6 +90,12 @@
       min-height: 70vh;
       padding-block: var(--space-xl);
     }
+  }
+  .dart-hero.is-static .dart-hero__sticky {
+    position: static !important;
+    height: auto !important;
+    min-height: 70vh !important;
+    padding-block: var(--space-xl);
   }
 
   .dart-hero__canvas-wrap {

@@ -59,6 +59,32 @@ export function initDartHero() {
     return;
   }
 
+  // Fällt die 3D-Initialisierung auf einem Gerät aus irgendeinem Grund aus
+  // (z. B. weil WebGL nicht verfügbar ist – kommt auf manchen Mobilgeräten/
+  // -browsern vor), landen wir hier: statt eines stillen Absturzes, der die
+  // reservierte Scroll-Fläche leer/schwarz zurücklässt, klappt die Sektion
+  // auf eine kompakte, statische Darstellung ohne Scroll-Jacking zusammen –
+  // exakt wie bei prefers-reduced-motion.
+  function fallbackToStatic(reason: unknown) {
+    console.warn("[dartHero] 3D-Animation nicht verfügbar, zeige statischen Fallback:", reason);
+    heroSection!.classList.add("is-static");
+    cueEl?.remove();
+    gsap.set(document.querySelectorAll(".dart-hero__title .char"), { clearProps: "all" });
+    gsap.set([eyebrowEl, taglineEl, ctaEl].filter(Boolean), { clearProps: "all" });
+  }
+
+  try {
+    initScene();
+  } catch (err) {
+    fallbackToStatic(err);
+  }
+
+  function initScene() {
+  // Zum Zeitpunkt des Aufrufs bereits per Guard oben auf non-null geprüft;
+  // lokale Aliase, damit TypeScript das auch innerhalb dieser verschachtelten
+  // Funktion weiß (Narrowing überlebt Funktionsgrenzen nicht zuverlässig).
+  const canvas = canvasWrap!;
+  const hero = heroSection!;
   const isMobile = window.matchMedia("(max-width: 640px)").matches;
   const trailCount = isMobile ? 3 : 6;
   const sparkCount = isMobile ? 14 : 26;
@@ -95,7 +121,7 @@ export function initDartHero() {
 
   const renderer = new WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
-  canvasWrap.appendChild(renderer.domElement);
+  canvas.appendChild(renderer.domElement);
 
   scene.add(new AmbientLight(0xffffff, 0.55));
   const key = new DirectionalLight(0xfff3d6, 1.1);
@@ -168,8 +194,8 @@ export function initDartHero() {
   }
 
   function applySize() {
-    const w = canvasWrap!.clientWidth;
-    const h = Math.max(canvasWrap!.clientHeight, 1);
+    const w = canvas.clientWidth;
+    const h = Math.max(canvas.clientHeight, 1);
     camera.aspect = w / h;
     baseCameraDistance = fitCameraDistance(w / h);
     camera.position.z = baseCameraDistance;
@@ -303,7 +329,7 @@ export function initDartHero() {
   // dieses Skript auf langsamen Verbindungen lädt. "bottom bottom" ergibt
   // automatisch dieselbe Scroll-Distanz wie die per CSS reservierte Höhe.
   const trigger = ScrollTrigger.create({
-    trigger: heroSection,
+    trigger: hero,
     start: "top top",
     end: "bottom bottom",
     scrub: 0.6,
@@ -340,4 +366,5 @@ export function initDartHero() {
   }
   window.addEventListener("load", resync, { once: true });
   [100, 400, 900, 1800].forEach((delay) => window.setTimeout(resync, delay));
+  } // Ende initScene()
 }
