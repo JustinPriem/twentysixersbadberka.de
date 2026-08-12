@@ -28,6 +28,12 @@
   .dart-hero {
     position: relative;
     height: 100vh;
+    /* 100svh = "small viewport height", passt IMMER in den sichtbaren Bereich
+       (auch mit eingeblendeter mobiler Adressleiste). Verhindert, dass die
+       Dartscheibe beim Scroll-Start durch eine zu groß gemessene 100vh-Höhe
+       teilweise aus dem sichtbaren Bereich rutscht. Browser ohne svh-Support
+       ignorieren die Zeile und bleiben bei 100vh. */
+    height: 100svh;
     min-height: 560px;
     overflow: hidden;
     background: radial-gradient(circle at 50% 40%, #17151a 0%, #0b0b0d 70%);

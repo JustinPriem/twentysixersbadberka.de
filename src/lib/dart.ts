@@ -2,8 +2,12 @@ import * as THREE from "three";
 
 /**
  * Baut einen stilisierten Dartpfeil als Three.js-Gruppe.
- * Lokale Vorwärtsrichtung ist -Z (Spitze zeigt nach -Z), damit
- * `group.lookAt(target)` die Spitze automatisch zum Ziel ausrichtet.
+ *
+ * Wichtig: `Object3D.lookAt()` verhält sich bei normalen Objekten (Meshes/
+ * Gruppen) anders als bei Kameras – es richtet die lokale +Z-Achse zum Ziel
+ * aus (nicht -Z wie bei Kameras, siehe Three.js-Quellcode von Object3D.lookAt).
+ * Die Spitze muss deshalb bei +Z liegen, die Federn bei -Z, damit
+ * `group.lookAt(target)` tatsächlich mit der Spitze voran zeigt.
  */
 export function createDart(): THREE.Group {
   const group = new THREE.Group();
@@ -20,22 +24,22 @@ export function createDart(): THREE.Group {
   });
 
   const tip = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.16, 16), tipMat);
-  tip.rotateX(-Math.PI / 2);
-  tip.position.z = -0.08;
+  tip.rotateX(Math.PI / 2);
+  tip.position.z = 0.08;
   group.add(tip);
 
   const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.017, 0.32, 16), barrelMat);
-  barrel.rotateX(-Math.PI / 2);
-  barrel.position.z = 0.08;
+  barrel.rotateX(Math.PI / 2);
+  barrel.position.z = -0.08;
   group.add(barrel);
 
   const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.22, 12), shaftMat);
-  shaft.rotateX(-Math.PI / 2);
-  shaft.position.z = 0.32;
+  shaft.rotateX(Math.PI / 2);
+  shaft.position.z = -0.32;
   group.add(shaft);
 
   const flightGroup = new THREE.Group();
-  flightGroup.position.z = 0.43;
+  flightGroup.position.z = -0.43;
   const finShape = new THREE.Shape();
   finShape.moveTo(0, 0);
   finShape.lineTo(0.11, 0.05);
@@ -64,7 +68,7 @@ export function createDart(): THREE.Group {
  */
 export function createTrailPool(count: number): THREE.Mesh[] {
   const geometry = new THREE.ConeGeometry(0.02, 0.55, 8);
-  geometry.rotateX(-Math.PI / 2);
+  geometry.rotateX(Math.PI / 2);
   const meshes: THREE.Mesh[] = [];
   for (let i = 0; i < count; i++) {
     const material = new THREE.MeshBasicMaterial({

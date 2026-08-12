@@ -8,16 +8,18 @@ import { createGlowSpriteTexture, createSparkBurst, updateSparkBurst, createShoc
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-const FLIGHT_END = 0.62;
-const IMPACT_PEAK = 0.72;
-const IMPACT_END = 0.8;
+const FLIGHT_END = 0.5;
+const IMPACT_PEAK = 0.58;
+const IMPACT_END = 0.66;
 const EMBED_DIR = new THREE.Vector3(0, 0, -1);
 const BASE_FOV_DEG = 42;
 const BOARD_SIZE = 3.2;
 
 // GSAP-Easing-Kurven statt handgestrickter Funktionen – konsistent mit dem
-// Rest des GSAP-Setups und angenehmer in der Bewegung.
-const easeFlight = gsap.parseEase("power2.inOut");
+// Rest des GSAP-Setups und angenehmer in der Bewegung. "power1.out" statt
+// eines ein-/ausschwingenden Easings, damit der Pfeil schon bei wenig Scroll
+// sichtbar in Bewegung kommt statt erst langsam anzulaufen.
+const easeFlight = gsap.parseEase("power1.out");
 const easeReveal = gsap.parseEase("power3.out");
 const easeOut2 = gsap.parseEase("power2.out");
 
@@ -50,7 +52,7 @@ export function initDartHero() {
   const sparkCount = isMobile ? 14 : 26;
   const boardTextureSize = isMobile ? 640 : 1024;
   const dprCap = isMobile ? 1.5 : 2;
-  const pinEnd = isMobile ? "+=220%" : "+=280%";
+  const pinEnd = isMobile ? "+=130%" : "+=170%";
 
   // iOS-Adressleisten-Resize soll ScrollTrigger nicht zu Sprüngen verleiten.
   ScrollTrigger.config({ ignoreMobileResize: true });
@@ -180,6 +182,10 @@ export function initDartHero() {
       dart.lookAt(tmpTarget);
       dart.rotation.z += Math.sin(t * Math.PI * 2) * 0.15 * (1 - t);
       highlightIntensity = 0;
+      // Defensiv zurücksetzen, falls z. B. beim Zurückscrollen aus der
+      // Impact-Phase heraus – sonst blieben Funken/Schockwelle eingefroren.
+      sparks.points.visible = false;
+      shockwave.visible = false;
 
       // Bewegungsspur: Geister-Darts an leicht früheren t-Werten entlang der Kurve.
       for (let i = 0; i < trailPool.length; i++) {
@@ -210,20 +216,24 @@ export function initDartHero() {
       shakeRotZ = shakeX * 0.4;
       impactPulse = Math.sin(shakeP * Math.PI) * 0.02;
       cameraPunch = Math.sin(shakeP * Math.PI) * 0.18 * easeOut2(1 - shakeP * 0.3);
-      highlightIntensity = Math.sin(clamp01((progress - FLIGHT_END) / (IMPACT_END - FLIGHT_END)) * Math.PI);
 
-      // Funken + Schockwelle, nur innerhalb des kurzen Impact-Fensters aktiv.
+      // Knackige Auf/Ab-Kurve (statt breitem Sinus-Plateau), damit der Glow
+      // wie ein kurzer Flash wirkt statt wie ein Dauerzustand, in dem man
+      // beim Anhalten "hängen bleibt".
       const impactLocal = clamp01((progress - FLIGHT_END) / (IMPACT_END - FLIGHT_END));
+      const impactShape = Math.pow(Math.sin(impactLocal * Math.PI), 2.2);
+      highlightIntensity = impactShape;
+
       if (impactLocal > 0 && impactLocal < 1) {
         updateSparkBurst(sparks, hitWorld, impactLocal);
         sparks.points.visible = true;
-        sparks.material.opacity = Math.sin(impactLocal * Math.PI) * 0.9;
+        sparks.material.opacity = Math.pow(Math.sin(impactLocal * Math.PI), 1.5) * 0.9;
 
         shockwave.visible = true;
         shockwave.position.copy(hitWorld);
         const ringScale = 0.3 + impactLocal * 2.2;
         shockwave.scale.setScalar(ringScale);
-        (shockwave.material as THREE.MeshBasicMaterial).opacity = (1 - impactLocal) * 0.8;
+        (shockwave.material as THREE.MeshBasicMaterial).opacity = impactShape * 0.8;
       } else {
         sparks.points.visible = false;
         shockwave.visible = false;
@@ -262,7 +272,7 @@ export function initDartHero() {
     camera.position.x = shakeX * 0.4;
 
     if (flashEl) {
-      const flashP = Math.max(0, 1 - Math.abs(progress - IMPACT_PEAK) / 0.05);
+      const flashP = Math.max(0, 1 - Math.abs(progress - IMPACT_PEAK) / 0.035);
       flashEl.style.opacity = String(Math.pow(flashP, 2) * 0.9);
     }
     revealTl.progress(revealEase);
@@ -294,4 +304,20 @@ export function initDartHero() {
     }, 120);
   }
   window.addEventListener("resize", handleResize);
+  // iOS/Android verändern die sichtbare Höhe (Adressleiste) oft erst nach dem
+  // ersten Layout, und Web-Fonts können die Header-Höhe nachträglich
+  // verschieben. Einmalig kurz nach dem Laden nachjustieren, damit die
+  // Scheibe nicht durch eine veraltete Messung aus dem Bild rutscht.
+  window.addEventListener(
+    "load",
+    () => {
+      applySize();
+      ScrollTrigger.refresh();
+    },
+    { once: true }
+  );
+  window.setTimeout(() => {
+    applySize();
+    ScrollTrigger.refresh();
+  }, 600);
 }
