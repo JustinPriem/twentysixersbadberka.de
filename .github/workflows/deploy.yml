@@ -1,0 +1,67 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Typen prüfen & Seite bauen
+        run: npm run build
+
+      - name: Build-Ergebnis hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 3
+
+  deploy:
+    name: Deploy zu Strato
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build-Ergebnis herunterladen
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      # Strato bietet bei aktuellen Hosting-Paketen nur noch SFTP (SSH File
+      # Transfer Protocol, Port 22) an, kein klassisches FTP/FTPS mehr –
+      # daher eine SFTP-fähige Action statt der ursprünglichen FTP-Action.
+      #
+      # Erwartet folgende Repository-Secrets (Settings → Secrets and variables → Actions):
+      #   STRATO_FTP_SERVER    Hostname, z. B. ftp.twentysixersbadberka.de (ohne sftp://-Prefix)
+      #   STRATO_FTP_USERNAME  Zugangsdaten aus dem Strato-Kundenmenü
+      #   STRATO_FTP_PASSWORD
+      #   STRATO_FTP_SERVER_DIR  Zielordner im Webspace, i. d. R. "/" oder "/htdocs/"
+      - name: Per SFTP zu Strato hochladen
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          server: ${{ secrets.STRATO_FTP_SERVER }}
+          port: 22
+          username: ${{ secrets.STRATO_FTP_USERNAME }}
+          password: ${{ secrets.STRATO_FTP_PASSWORD }}
+          local_path: "dist/*"
+          remote_path: ${{ secrets.STRATO_FTP_SERVER_DIR }}
+          sftp_only: true

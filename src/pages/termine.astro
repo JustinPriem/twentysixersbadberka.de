@@ -1,0 +1,81 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const alleTermine = (await getCollection("termine")).sort(
+  (a, b) => a.data.datum.valueOf() - b.data.datum.valueOf()
+);
+const dateFormatter = new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+
+const kategorieLabel: Record<string, string> = {
+  training: "Training",
+  liga: "Liga-Spiel",
+  turnier: "Turnier",
+  vereinsleben: "Vereinsleben",
+};
+---
+
+<BaseLayout
+  title="Termine"
+  description="Alle Termine von twentysixersbadberka – Training, Liga-Spiele, Turniere und Vereinsleben."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Spielbetrieb</span>
+      <h1>Termine</h1>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <ul class="termin-list">
+        {alleTermine.map((termin) => (
+          <li class="card reveal termin-item">
+            <div class="termin-date">
+              <span>{dateFormatter.format(termin.data.datum)}</span>
+              {termin.data.uhrzeit && <span class="termin-time">{termin.data.uhrzeit} Uhr</span>}
+            </div>
+            <div>
+              <span class="eyebrow">{kategorieLabel[termin.data.kategorie] ?? termin.data.kategorie}</span>
+              <h2>{termin.data.titel}</h2>
+              <p>{termin.data.ort}</p>
+              {termin.data.beschreibung && <p>{termin.data.beschreibung}</p>}
+            </div>
+          </li>
+        ))}
+        {alleTermine.length === 0 && <p class="reveal">Aktuell keine Termine eingetragen.</p>}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .termin-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm);
+  }
+  .termin-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: var(--space-md);
+    align-items: center;
+  }
+  .termin-date {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+  .termin-time { color: var(--color-text-muted); font-size: 0.85rem; }
+  .termin-item h2 { margin-bottom: 0.25rem; font-size: 1.35rem; }
+  .termin-item p { margin-bottom: 0.25rem; }
+
+  @media (max-width: 640px) {
+    .termin-item { grid-template-columns: 1fr; }
+  }
+</style>

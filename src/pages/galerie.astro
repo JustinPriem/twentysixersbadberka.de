@@ -1,0 +1,56 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Platzhalter-Galerie: sobald echte Fotos vorliegen, hier die Pfade
+// unter /public/images/galerie/ eintragen.
+const placeholderCount = 8;
+---
+
+<BaseLayout
+  title="Galerie"
+  description="Impressionen aus dem Vereinsleben von twentysixersbadberka."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Vereinsleben</span>
+      <h1>Galerie</h1>
+      <p class="lede">
+        Hier entsteht bald eine Sammlung an Fotos von Training, Ligaspielen und Vereinsfeiern.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container gallery-grid">
+      {Array.from({ length: placeholderCount }).map((_, i) => (
+        <div class="gallery-tile reveal" style={`--hue: ${(i * 47) % 360}`}>
+          <span>Foto folgt</span>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .lede { max-width: 60ch; }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-sm);
+  }
+  .gallery-tile {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    background: linear-gradient(135deg, hsl(var(--hue) 35% 12%), hsl(var(--hue) 35% 18%));
+    border: 1px dashed rgba(243, 236, 216, 0.15);
+  }
+</style>

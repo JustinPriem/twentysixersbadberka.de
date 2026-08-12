@@ -1,0 +1,91 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const sponsoren = await getCollection("sponsoren");
+const premium = sponsoren.filter((s) => s.data.stufe === "premium");
+const standard = sponsoren.filter((s) => s.data.stufe === "standard");
+---
+
+<BaseLayout
+  title="Sponsoren"
+  description="Unsere Sponsor:innen und Unterstützer:innen von twentysixersbadberka."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Danke</span>
+      <h1>Unsere Sponsoren</h1>
+      <p class="lede">
+        Ohne die Unterstützung unserer Sponsor:innen wäre unser Vereinsleben nicht möglich.
+        Vielen Dank für die Partnerschaft!
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      {premium.length > 0 && (
+        <>
+          <h2 class="reveal">Premium-Partner</h2>
+          <div class="grid grid--3 sponsor-grid">
+            {premium.map((s) => (
+              <a href={s.data.url ?? "#"} target="_blank" rel="noopener noreferrer" class="card sponsor-card reveal">
+                <img src={s.data.logo} alt={s.data.name} loading="lazy" />
+                <p>{s.data.name}</p>
+              </a>
+            ))}
+          </div>
+        </>
+      )}
+
+      {standard.length > 0 && (
+        <>
+          <h2 class="reveal" style="margin-top: var(--space-lg);">Partner</h2>
+          <div class="grid grid--4 sponsor-grid">
+            {standard.map((s) => (
+              <a href={s.data.url ?? "#"} target="_blank" rel="noopener noreferrer" class="card sponsor-card reveal">
+                <img src={s.data.logo} alt={s.data.name} loading="lazy" />
+                <p>{s.data.name}</p>
+              </a>
+            ))}
+          </div>
+        </>
+      )}
+
+      {sponsoren.length === 0 && <p class="reveal">Noch keine Sponsoren eingetragen.</p>}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container reveal cta-band">
+      <h2>Selbst Sponsor werden?</h2>
+      <p>Wir freuen uns über jede Unterstützung – ob als Trikot-, Turnier- oder Vereinssponsor.</p>
+      <a href="/kontakt/" class="btn btn--primary">Kontakt aufnehmen</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .lede { max-width: 60ch; }
+  .sponsor-grid { margin-top: var(--space-sm); }
+  .sponsor-card {
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+  .sponsor-card img {
+    max-height: 60px;
+    filter: grayscale(1) brightness(1.4);
+    opacity: 0.8;
+    transition: filter 0.25s var(--ease-out), opacity 0.25s var(--ease-out);
+  }
+  .sponsor-card:hover img { filter: none; opacity: 1; }
+  .sponsor-card p { margin: 0; font-size: 0.85rem; color: var(--color-text-muted); }
+  .cta-band { text-align: center; }
+  .cta-band p { max-width: 46ch; margin-inline: auto; margin-bottom: var(--space-md); }
+</style>

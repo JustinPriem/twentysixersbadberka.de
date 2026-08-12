@@ -1,0 +1,74 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const vorstand = [
+  { rolle: "1. Vorsitzender", name: "Tim Graf" },
+  { rolle: "2. Vorsitzende:r", name: "N.N." },
+  { rolle: "Kassenwart:in", name: "N.N." },
+  { rolle: "Sportwart:in", name: "N.N." },
+  { rolle: "Schriftführer:in", name: "N.N." },
+];
+---
+
+<BaseLayout
+  title="Der Verein"
+  description="Geschichte, Philosophie und Vorstand von twentysixersbadberka – dem Dartverein aus Bad Berka."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Der Verein</span>
+      <h1>Unsere Geschichte</h1>
+      <p class="lede">
+        twentysixersbadberka wurde von einer Gruppe dartbegeisterter Freund:innen aus Bad Berka
+        gegründet.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container grid grid--2">
+      <div class="card reveal">
+        <h2>Unsere Philosophie</h2>
+        <p>
+          Bei uns zählt der Spaß am Spiel genauso wie der sportliche Ehrgeiz. Wir fördern
+          Nachwuchs, trainieren regelmäßig gemeinsam und pflegen ein aktives Vereinsleben – auf
+          und neben der Scheibe.
+        </p>
+      </div>
+      <div class="card reveal">
+        <h2>Vereinsheim</h2>
+        <p>
+          Trainiert und gespielt wird in unserem Vereinsheim in Bad Berka. Neue Mitglieder sind
+          jederzeit willkommen, beim Training vorbeizuschauen.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Vorstand</span>
+        <h2>Wer den Verein leitet</h2>
+      </div>
+      <div class="grid grid--3">
+        {vorstand.map((mitglied) => (
+          <div class="card reveal">
+            <span class="eyebrow">{mitglied.rolle}</span>
+            <h3>{mitglied.name}</h3>
+          </div>
+        ))}
+      </div>
+      <p class="reveal note">
+        *(Weitere Vorstandsmitglieder werden ergänzt, sobald sie feststehen.)*
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .lede { font-size: 1.15rem; max-width: 60ch; }
+  .section-head { margin-bottom: var(--space-md); }
+  .note { font-style: italic; opacity: 0.7; margin-top: var(--space-sm); }
+</style>

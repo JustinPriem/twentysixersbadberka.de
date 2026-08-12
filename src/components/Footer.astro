@@ -1,0 +1,134 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <p class="footer-brand">twentysixers<span>badberka</span></p>
+      <p>Dartverein aus Bad Berka &middot; weils Laune macht.</p>
+      <div class="socials" aria-label="Social Media">
+        <a href="https://www.instagram.com/twentysixersbadberka/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+      </div>
+    </div>
+
+    <nav aria-label="Footer-Navigation">
+      <h3>Verein</h3>
+      <ul>
+        <li><a href="/verein/">Der Verein</a></li>
+        <li><a href="/mitglied-werden/">Mitglied werden</a></li>
+        <li><a href="/sponsoren/">Sponsoren</a></li>
+      </ul>
+    </nav>
+
+    <nav aria-label="Footer-Navigation">
+      <h3>Spielbetrieb</h3>
+      <ul>
+        <li><a href="/termine/">Termine</a></li>
+        <li><a href="/ergebnisse/">Ergebnisse</a></li>
+        <li><a href="/news/">News</a></li>
+        <li><a href="/galerie/">Galerie</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h3>Kontakt</h3>
+      <address>
+        twentysixersbadberka e.V.<br />
+        Tannrodaer Str. 11<br />
+        99438 Bad Berka
+      </address>
+      <p><a href="mailto:info@twentysixersbadberka.de">info@twentysixersbadberka.de</a></p>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>&copy; {year} twentysixersbadberka e.V. Alle Rechte vorbehalten.</p>
+    <nav aria-label="Rechtliches">
+      <a href="/impressum/">Impressum</a>
+      <a href="/datenschutz/">Datenschutz</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-board-raised);
+    border-top: 1px solid rgba(243, 236, 216, 0.08);
+    padding-block: var(--space-lg) var(--space-md);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  }
+
+  .footer-brand {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--color-cream);
+    margin-bottom: var(--space-xs);
+  }
+  .footer-brand span { color: var(--color-gold); }
+
+  .socials {
+    display: flex;
+    gap: 1rem;
+    margin-top: var(--space-sm);
+  }
+  .socials a {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+  .socials a:hover { color: var(--color-gold-bright); }
+
+  h3 {
+    font-size: 0.95rem;
+    color: var(--color-gold);
+    margin-bottom: var(--space-sm);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  ul a, address a {
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+  }
+  ul a:hover, address a:hover { color: var(--color-gold-bright); }
+
+  address {
+    font-style: normal;
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(243, 236, 216, 0.06);
+    font-size: 0.85rem;
+  }
+  .footer-bottom p { margin: 0; }
+  .footer-bottom nav { display: flex; gap: 1.5rem; }
+  .footer-bottom a { color: var(--color-text-muted); }
+  .footer-bottom a:hover { color: var(--color-gold-bright); }
+
+  @media (max-width: 860px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 520px) {
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>

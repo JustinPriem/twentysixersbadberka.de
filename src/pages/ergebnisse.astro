@@ -1,0 +1,79 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const ergebnisse = (await getCollection("ergebnisse")).sort(
+  (a, b) => b.data.datum.valueOf() - a.data.datum.valueOf()
+);
+const dateFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+---
+
+<BaseLayout
+  title="Ergebnisse"
+  description="Spielergebnisse von twentysixersbadberka aus dem Liga-Spielbetrieb."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Spielbetrieb</span>
+      <h1>Ergebnisse</h1>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="table-wrap reveal">
+        <table>
+          <thead>
+            <tr>
+              <th>Spieltag</th>
+              <th>Datum</th>
+              <th>Heim</th>
+              <th>Gast</th>
+              <th>Ergebnis</th>
+              <th>Liga</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ergebnisse.map((e) => (
+              <tr>
+                <td>{e.data.spieltag}</td>
+                <td>{dateFormatter.format(e.data.datum)}</td>
+                <td>{e.data.heim}</td>
+                <td>{e.data.gast}</td>
+                <td class="result">{e.data.ergebnis}</td>
+                <td>{e.data.liga}</td>
+              </tr>
+            ))}
+            {ergebnisse.length === 0 && (
+              <tr><td colspan="6">Noch keine Ergebnisse eingetragen.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(243, 236, 216, 0.08);
+  }
+  th {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    color: var(--color-gold);
+  }
+  td { color: var(--color-cream); }
+  .result { font-weight: 600; color: var(--color-gold-bright); }
+</style>

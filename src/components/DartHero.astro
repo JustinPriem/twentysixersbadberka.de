@@ -1,0 +1,189 @@
+{/*
+  Hero-Sektion: Ein Dartpfeil fliegt beim Scrollen in die Triple-20, danach
+  löst sich die Dartscheibe auf und der Vereinsname erscheint.
+  Läuft komplett clientseitig (Three.js + GSAP ScrollTrigger), siehe
+  src/lib/dartHero.ts. Respektiert prefers-reduced-motion.
+*/}
+<section class="dart-hero" data-dart-hero aria-label="twentysixersbadberka – Startanimation">
+  <div class="dart-hero__sticky">
+    <div class="dart-hero__canvas-wrap" data-canvas-wrap aria-hidden="true"></div>
+    <div class="dart-hero__flash" data-impact-flash aria-hidden="true"></div>
+    <div class="dart-hero__vignette" aria-hidden="true"></div>
+
+    <div class="dart-hero__overlay">
+      <p class="dart-hero__cue" data-scroll-cue>Scrollen für den Wurf ↓</p>
+
+      <div class="dart-hero__reveal" data-hero-reveal>
+        <span class="eyebrow" data-hero-eyebrow>Dartverein · Bad Berka</span>
+        <h1 class="dart-hero__title">
+          <span class="dart-hero__title-line" data-split-line>twentysixers</span>
+          <span class="dart-hero__title-line dart-hero__title-line--accent" data-split-line>bad berka</span>
+        </h1>
+        <p class="dart-hero__tagline" data-hero-tagline>Weil's Laune macht.</p>
+        <a href="#verein-intro" class="btn btn--primary" data-hero-cta>Verein entdecken</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+    Architektur: Statt GSAP per JS nachträglich einen "Pin-Spacer" einfügen zu
+    lassen (was auf langsamen Mobilverbindungen zu einem Sprung führt, wenn
+    das schwere Three.js-Skript erst lädt, NACHDEM schon gescrollt wurde),
+    reserviert die äußere Sektion die komplette Scroll-Strecke schon per
+    reinem CSS – lange bevor JS überhaupt ausgeführt wird. Die innere
+    ".dart-hero__sticky" bleibt währenddessen per position:sticky im
+    Viewport "gepinnt". Ergebnis: Der Seiteninhalt springt nie nachträglich,
+    ganz unabhängig davon, wie lange das Skript zum Laden braucht.
+
+    Die Höhen hier müssen zur Scroll-Distanz in dartHero.ts passen
+    (100% Eigenhöhe + Scroll-Distanz der Animation).
+  */
+  .dart-hero {
+    position: relative;
+    height: 270vh;
+    height: 270svh;
+    min-height: 900px;
+  }
+
+  @media (max-width: 640px) {
+    .dart-hero {
+      height: 230vh;
+      height: 230svh;
+      min-height: 760px;
+    }
+  }
+
+  /* .is-static wird von JS gesetzt: entweder wegen prefers-reduced-motion,
+     oder als Fallback, falls die 3D-Initialisierung fehlschlägt (z. B. kein
+     WebGL verfügbar) – in beiden Fällen soll die Sektion kompakt zusammen-
+     klappen statt eine leere/schwarze Scroll-Fläche zu hinterlassen. */
+  @media (prefers-reduced-motion: reduce) {
+    .dart-hero {
+      height: auto;
+      min-height: 0;
+    }
+  }
+  .dart-hero.is-static {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .dart-hero__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 40%, #17151a 0%, #0b0b0d 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dart-hero__sticky {
+      position: static;
+      height: auto;
+      min-height: 70vh;
+      padding-block: var(--space-xl);
+    }
+  }
+  .dart-hero.is-static .dart-hero__sticky {
+    position: static !important;
+    height: auto !important;
+    min-height: 70vh !important;
+    padding-block: var(--space-xl);
+  }
+
+  .dart-hero__canvas-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .dart-hero__canvas-wrap :global(canvas) {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .dart-hero__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(11, 11, 13, 0.85) 100%);
+  }
+
+  .dart-hero__flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at 62% 42%, rgba(232, 199, 102, 0.9), rgba(232, 199, 102, 0) 60%);
+  }
+
+  .dart-hero__overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding-inline: var(--space-md);
+    pointer-events: none;
+  }
+
+  .dart-hero__cue {
+    position: absolute;
+    bottom: -40vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    animation: bob 2.4s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 8px); }
+  }
+
+  .dart-hero__reveal {
+    /* Kein statisches opacity:0 hier: die Kind-Elemente (Buchstaben, Eyebrow,
+       Tagline, CTA) werden von GSAP einzeln versteckt/animiert. Fällt JS aus,
+       bleibt der Text so von Anfang an lesbar statt dauerhaft unsichtbar. */
+    pointer-events: auto;
+  }
+
+  .dart-hero__title {
+    font-size: clamp(2.75rem, 8vw, 6rem);
+    margin-bottom: var(--space-xs);
+    perspective: 500px;
+  }
+  .dart-hero__title-line {
+    display: block;
+  }
+  .dart-hero__title-line--accent {
+    color: var(--color-gold);
+    font-size: 0.55em;
+    letter-spacing: 0.08em;
+  }
+  .dart-hero__title :global(.char) {
+    display: inline-block;
+  }
+
+  .dart-hero__tagline {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-md);
+  }
+
+  @media (max-width: 640px) {
+    .dart-hero__cue { display: none; }
+  }
+</style>
+
+<script>
+  import { initDartHero } from "../lib/dartHero";
+  initDartHero();
+</script>

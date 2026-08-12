@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const news = (await getCollection("news", ({ data }) => data.veroeffentlicht)).sort(
+  (a, b) => b.data.datum.valueOf() - a.data.datum.valueOf()
+);
+const dateFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+---
+
+<BaseLayout title="News" description="Aktuelle Neuigkeiten von twentysixersbadberka.">
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Aktuelles</span>
+      <h1>News</h1>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container grid grid--3">
+      {news.map((post) => (
+        <a href={`/news/${post.id}/`} class="card news-card reveal">
+          <span class="eyebrow">{dateFormatter.format(post.data.datum)}</span>
+          <h2>{post.data.title}</h2>
+          <p>{post.data.teaser}</p>
+        </a>
+      ))}
+      {news.length === 0 && <p class="reveal">Noch keine News veröffentlicht.</p>}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .news-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+  }
+  .news-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-gold);
+    text-decoration: none;
+  }
+</style>

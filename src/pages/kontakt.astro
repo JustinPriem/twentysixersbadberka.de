@@ -1,0 +1,141 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Kontakt"
+  description="Kontaktiere twentysixersbadberka – wir freuen uns über deine Nachricht."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Kontakt</span>
+      <h1>Schreib uns</h1>
+      <p class="lede">
+        Fragen zum Training, zur Mitgliedschaft oder zum Sponsoring? Meld dich einfach über das
+        Formular oder direkt per Mail.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container grid grid--2">
+      <div class="card reveal">
+        <h2>Formular</h2>
+        <form id="contact-form" class="contact-form" data-contact-form novalidate>
+          <!-- Honeypot-Feld gegen Spam-Bots: bleibt für echte Nutzer:innen unsichtbar -->
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required autocomplete="name" />
+
+          <label for="email">E-Mail</label>
+          <input type="email" id="email" name="email" required autocomplete="email" />
+
+          <label for="betreff">Betreff</label>
+          <input type="text" id="betreff" name="betreff" required />
+
+          <label for="nachricht">Nachricht</label>
+          <textarea id="nachricht" name="nachricht" rows="5" required></textarea>
+
+          <button type="submit" class="btn btn--primary">Nachricht senden</button>
+
+          <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="card reveal">
+        <h2>Direkt erreichbar</h2>
+        <address>
+          twentysixersbadberka e.V.<br />
+          Tannrodaer Str. 11<br />
+          99438 Bad Berka
+        </address>
+        <p><a href="mailto:info@twentysixersbadberka.de">info@twentysixersbadberka.de</a></p>
+        <h3>Training</h3>
+        <p>Donnerstags, 19:00 Uhr im Vereinsheim.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .lede { max-width: 60ch; }
+
+  .contact-form {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .contact-form label {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    color: var(--color-gold);
+    margin-top: 0.6rem;
+  }
+  .contact-form input,
+  .contact-form textarea {
+    background: var(--color-board);
+    border: 1px solid rgba(243, 236, 216, 0.15);
+    border-radius: 6px;
+    padding: 0.7em 0.9em;
+    color: var(--color-cream);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-gold);
+  }
+  .contact-form button { margin-top: var(--space-sm); justify-self: start; }
+  .honeypot { position: absolute; left: -9999px; }
+  .form-status { min-height: 1.4em; font-size: 0.9rem; }
+  .form-status[data-state="success"] { color: var(--color-gold-bright); }
+  .form-status[data-state="error"] { color: #e0605f; }
+
+  address { font-style: normal; color: var(--color-text-muted); line-height: 1.6; }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  const statusEl = document.querySelector<HTMLElement>("[data-form-status]");
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!form || !statusEl) return;
+
+    const data = new FormData(form);
+
+    // Honeypot: wenn befüllt, ist es ein Bot – so tun, als wäre alles ok, aber nichts senden.
+    if (String(data.get("website") ?? "").length > 0) {
+      statusEl.textContent = "Danke für deine Nachricht!";
+      statusEl.dataset.state = "success";
+      form.reset();
+      return;
+    }
+
+    statusEl.textContent = "Wird gesendet …";
+    statusEl.dataset.state = "";
+
+    try {
+      const response = await fetch("/contact.php", {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) throw new Error("Serverfehler");
+      statusEl.textContent = "Danke! Deine Nachricht wurde verschickt.";
+      statusEl.dataset.state = "success";
+      form.reset();
+    } catch (err) {
+      statusEl.textContent =
+        "Senden fehlgeschlagen. Bitte versuch es erneut oder schreib uns direkt an info@twentysixersbadberka.de.";
+      statusEl.dataset.state = "error";
+    }
+  });
+</script>

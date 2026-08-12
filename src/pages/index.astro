@@ -1,0 +1,146 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import DartHero from "../components/DartHero.astro";
+import { getCollection } from "astro:content";
+
+const news = (await getCollection("news", ({ data }) => data.veroeffentlicht))
+  .sort((a, b) => b.data.datum.valueOf() - a.data.datum.valueOf())
+  .slice(0, 3);
+
+const termine = (await getCollection("termine"))
+  .filter((t) => t.data.datum.valueOf() >= Date.now() - 1000 * 60 * 60 * 24)
+  .sort((a, b) => a.data.datum.valueOf() - b.data.datum.valueOf())
+  .slice(0, 3);
+
+const dateFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+---
+
+<BaseLayout
+  title="twentysixersbadberka"
+  description="twentysixersbadberka – Dartverein aus Bad Berka. Training, Liga-Spielbetrieb, Turniere und Vereinsleben rund ums Steel- und Softdart."
+>
+  <DartHero />
+
+  <section id="verein-intro" class="section">
+    <div class="container grid grid--2" style="align-items: center;">
+      <div class="reveal">
+        <span class="eyebrow">Der Verein</span>
+        <h2>Aus Bad Berka, für den Dartsport.</h2>
+        <p>
+          twentysixersbadberka ist der Dartverein aus Bad Berka. Bei uns treffen sich Anfänger:innen
+          und Ligaspieler:innen, um gemeinsam zu trainieren, sich in der Liga zu messen und den
+          Dartsport in der Region zu fördern.
+        </p>
+        <a href="/verein/" class="btn btn--ghost">Mehr über uns</a>
+      </div>
+      <div class="reveal stat-grid">
+        <div class="card">
+          <p class="stat-highlight">Training</p>
+          <p>Wöchentlich gemeinsam an der Scheibe – für Einsteiger:innen und Fortgeschrittene.</p>
+        </div>
+        <div class="card">
+          <p class="stat-highlight">Community</p>
+          <p>Dartsport, der Spaß macht und verbindet – weils Laune macht.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Termine</span>
+        <h2>Was als Nächstes ansteht</h2>
+      </div>
+      <div class="grid grid--3">
+        {termine.length === 0 && (
+          <p class="reveal">Aktuell sind keine Termine eingetragen – schau bald wieder vorbei.</p>
+        )}
+        {termine.map((termin) => (
+          <div class="card reveal">
+            <span class="eyebrow">{termin.data.kategorie}</span>
+            <h3>{termin.data.titel}</h3>
+            <p>{dateFormatter.format(termin.data.datum)} {termin.data.uhrzeit ? `· ${termin.data.uhrzeit} Uhr` : ""}</p>
+            <p>{termin.data.ort}</p>
+          </div>
+        ))}
+      </div>
+      <div class="section-cta reveal">
+        <a href="/termine/" class="btn btn--ghost">Alle Termine ansehen</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">News</span>
+        <h2>Aktuelles aus dem Verein</h2>
+      </div>
+      <div class="grid grid--3">
+        {news.length === 0 && (
+          <p class="reveal">Noch keine News veröffentlicht.</p>
+        )}
+        {news.map((post) => (
+          <a href={`/news/${post.id}/`} class="card news-card reveal">
+            <span class="eyebrow">{dateFormatter.format(post.data.datum)}</span>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.teaser}</p>
+          </a>
+        ))}
+      </div>
+      <div class="section-cta reveal">
+        <a href="/news/" class="btn btn--ghost">Alle News</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt cta-band">
+    <div class="container reveal">
+      <h2>Lust, mitzuspielen?</h2>
+      <p>Egal ob Anfänger:in oder erfahrene Liga-Spieler:in – bei uns ist jede:r willkommen.</p>
+      <a href="/mitglied-werden/" class="btn btn--primary">Mitglied werden</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .stat-grid {
+    display: grid;
+    gap: var(--space-sm);
+  }
+  .stat-highlight {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 1.5rem;
+    color: var(--color-gold);
+    margin-bottom: 0.35rem;
+  }
+  .section-head {
+    margin-bottom: var(--space-md);
+  }
+  .section-cta {
+    margin-top: var(--space-md);
+    text-align: center;
+  }
+  .news-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+  }
+  .news-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-gold);
+    text-decoration: none;
+  }
+  .cta-band {
+    text-align: center;
+  }
+  .cta-band p {
+    max-width: 46ch;
+    margin-inline: auto;
+    margin-bottom: var(--space-md);
+  }
+</style>

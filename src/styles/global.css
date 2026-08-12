@@ -1,0 +1,223 @@
+/* ==========================================================================
+   twentysixersbadberka.de – Design-System
+   Platzhalter-Branding im Dartscheiben-Look: Board-Schwarz, Wire-Gold,
+   Segment-Rot/-Grün. Bis ein echtes Vereinslogo/Farbkonzept existiert,
+   ist das hier der verbindliche visuelle Rahmen.
+   ========================================================================== */
+
+/* Schriften werden lokal über @fontsource eingebunden (siehe BaseLayout.astro),
+   nicht per Google-Fonts-CDN – so werden keine Besucher-IPs an Google übertragen. */
+
+:root {
+  /* Farben */
+  --color-board: #0b0b0d;
+  --color-board-raised: #151417;
+  --color-surface: #1c1b1f;
+  --color-red: #c8202c;
+  --color-red-dim: #7a1620;
+  --color-green: #0e7a45;
+  --color-green-dim: #0a4f2d;
+  --color-gold: #cda434;
+  --color-gold-bright: #e8c766;
+  --color-cream: #f3ecd8;
+  --color-text: #f3ecd8;
+  --color-text-muted: #b8b2a3;
+  --color-text-on-light: #14130f;
+
+  /* Typografie */
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Abstände */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 8rem;
+
+  --radius: 10px;
+  --max-width: 1200px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Bewusst KEIN scroll-behavior:smooth auf <html>: GSAP ScrollTrigger liest
+   die Scroll-Position laufend aus, und natives "smooth" scrolling
+   (insbesondere in Kombination mit `scrub`) kann damit in Konflikt geraten
+   und zu ruckeligem/falsch synchronisiertem Verhalten führen – siehe GSAP-
+   Dokumentation zu ScrollTrigger. Sprunghafte Anchor-Links sind der
+   akzeptierte Trade-off dafür, dass die Scroll-Animation zuverlässig läuft. */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-board);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin: 0 0 var(--space-sm);
+  color: var(--color-cream);
+}
+
+h1 { font-size: clamp(2.5rem, 6vw, 5rem); }
+h2 { font-size: clamp(1.75rem, 4vw, 2.75rem); }
+h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); }
+
+p { margin: 0 0 var(--space-sm); color: var(--color-text-muted); }
+
+a {
+  color: var(--color-gold-bright);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+.container {
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-md);
+}
+
+.section {
+  padding-block: var(--space-xl);
+}
+
+.section--alt {
+  background: var(--color-board-raised);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.8rem;
+  color: var(--color-gold);
+  margin-bottom: var(--space-xs);
+}
+.eyebrow::before {
+  content: "";
+  width: 1.5em;
+  height: 2px;
+  background: var(--color-gold);
+  display: inline-block;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.85em 1.75em;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.btn--primary {
+  background: var(--color-gold);
+  color: var(--color-text-on-light);
+}
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(205, 164, 52, 0.6);
+  text-decoration: none;
+}
+.btn--ghost {
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-cream);
+}
+.btn--ghost:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold-bright);
+  text-decoration: none;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  border: 1px solid rgba(243, 236, 216, 0.08);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-md);
+}
+.grid--2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid--3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid--4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-gold);
+  color: var(--color-text-on-light);
+  padding: 0.75em 1.25em;
+  z-index: 1000;
+  border-radius: 0 0 8px 0;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* Rechtsseiten (Impressum, Datenschutz) */
+.legal-page { padding-block: var(--space-lg); }
+.legal-content {
+  max-width: 72ch;
+}
+.legal-content h2 {
+  margin-top: var(--space-md);
+  font-size: 1.2rem;
+}
+.legal-content p, .legal-content ul {
+  color: var(--color-text-muted);
+}
+.legal-content ul { padding-left: 1.2rem; }
+.legal-content li { margin-bottom: 0.3rem; }
+.legal-content a { color: var(--color-gold-bright); }
+.placeholder-notice {
+  background: rgba(200, 32, 44, 0.12);
+  border: 1px solid rgba(200, 32, 44, 0.4);
+  border-radius: var(--radius);
+  padding: var(--space-sm);
+  color: var(--color-cream);
+}
