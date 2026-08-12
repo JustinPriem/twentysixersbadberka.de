@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Seite nicht gefunden" description="Diese Seite konnte nicht gefunden werden.">
+  <section class="section not-found">
+    <div class="container reveal">
+      <span class="eyebrow">Daneben</span>
+      <h1>404 – Out of Bounds</h1>
+      <p>Diese Seite gibt es nicht (mehr). Vielleicht war der Wurf daneben.</p>
+      <a href="/" class="btn btn--primary">Zurück zur Startseite</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    text-align: center;
+  }
+  .not-found .container { max-width: 60ch; margin-inline: auto; }
+  .not-found p { margin-bottom: var(--space-md); }
+</style>

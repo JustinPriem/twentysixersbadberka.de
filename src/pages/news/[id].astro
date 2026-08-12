@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const news = await getCollection("news", ({ data }) => data.veroeffentlicht);
+  return news.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const dateFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+---
+
+<BaseLayout title={post.data.title} description={post.data.teaser}>
+  <article class="section">
+    <div class="container article-container reveal">
+      <a href="/news/" class="back-link">← Alle News</a>
+      <span class="eyebrow">{dateFormatter.format(post.data.datum)}</span>
+      <h1>{post.data.title}</h1>
+      <div class="article-body">
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-container {
+    max-width: 72ch;
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: var(--space-md);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+  .article-body { margin-top: var(--space-md); }
+  .article-body :global(p) { color: var(--color-cream); }
+</style>

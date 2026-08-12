@@ -1,0 +1,64 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const vorteile = [
+  "Regelmäßiges Training für alle Leistungsstufen",
+  "Teilnahme am Liga- und Turnierbetrieb",
+  "Gemeinschaft und aktives Vereinsleben",
+  "Nutzung des Vereinsheims und der Ausrüstung",
+];
+---
+
+<BaseLayout
+  title="Mitglied werden"
+  description="Werde Mitglied bei twentysixersbadberka – dem Dartverein aus Bad Berka."
+>
+  <section class="section page-hero">
+    <div class="container reveal">
+      <span class="eyebrow">Mitmachen</span>
+      <h1>Mitglied werden</h1>
+      <p class="lede">
+        Egal ob du zum ersten Mal einen Dart in der Hand hältst oder schon Liga-Erfahrung hast –
+        bei twentysixersbadberka bist du willkommen.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container grid grid--2">
+      <div class="card reveal">
+        <h2>Deine Vorteile</h2>
+        <ul>
+          {vorteile.map((v) => <li>{v}</li>)}
+        </ul>
+      </div>
+
+      <div class="card reveal">
+        <h2>Beitragsordnung</h2>
+        <p><em>(Platzhalter – bitte durch aktuelle Beiträge ersetzen.)</em></p>
+        <ul>
+          <li>Erwachsene: XX € / Jahr</li>
+          <li>Jugendliche: XX € / Jahr</li>
+          <li>Familien: XX € / Jahr</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container reveal cta-band">
+      <h2>Bereit für den ersten Wurf?</h2>
+      <p>Melde dich formlos per Mail oder komm einfach zum offenen Training vorbei.</p>
+      <a href="/kontakt/" class="btn btn--primary">Jetzt Kontakt aufnehmen</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-lg) var(--space-md); }
+  .lede { max-width: 60ch; }
+  ul { padding-left: 1.2rem; color: var(--color-text-muted); }
+  li { margin-bottom: 0.4rem; }
+  .cta-band { text-align: center; }
+  .cta-band p { max-width: 46ch; margin-inline: auto; margin-bottom: var(--space-md); }
+</style>

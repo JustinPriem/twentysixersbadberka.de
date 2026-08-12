@@ -1,0 +1,104 @@
+# Decap-CMS-Konfiguration für twentysixersbadberka.de
+# Vollständige Einrichtungsanleitung: siehe README.md, Abschnitt "Content-Pflege (CMS)".
+
+backend:
+  name: github
+  repo: justinpriem/twentysixersbadberka.de
+  branch: main
+  # base_url zeigt auf den OAuth-Proxy, der den GitHub-Login für Decap CMS abwickelt.
+  # Muss einmalig eingerichtet werden (kleine, kostenlose Serverless-Funktion,
+  # z. B. auf Vercel/Cloudflare Workers) – siehe README.md.
+  base_url: https://REPLACE-WITH-YOUR-OAUTH-PROXY.example.com
+  auth_endpoint: auth
+
+# Nach jedem Speichern im CMS baut die GitHub Action (.github/workflows/deploy.yml)
+# die Seite automatisch neu und lädt sie zu Strato hoch.
+publish_mode: simple
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: news
+    label: "News"
+    label_singular: "News-Beitrag"
+    folder: "src/content/news"
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: "Titel", name: "title", widget: "string" }
+      - { label: "Datum", name: "datum", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Teaser (kurz)", name: "teaser", widget: "text" }
+      - { label: "Bild", name: "bild", widget: "image", required: false }
+      - { label: "Veröffentlicht", name: "veroeffentlicht", widget: "boolean", default: true }
+      - { label: "Text", name: "body", widget: "markdown" }
+
+  - name: termine
+    label: "Termine"
+    label_singular: "Termin"
+    folder: "src/content/termine"
+    create: true
+    slug: "{{slug}}"
+    extension: yaml
+    format: yaml
+    fields:
+      - { label: "Titel", name: "titel", widget: "string" }
+      - { label: "Datum", name: "datum", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Uhrzeit", name: "uhrzeit", widget: "string", required: false, hint: "z. B. 19:00" }
+      - { label: "Ort", name: "ort", widget: "string" }
+      - label: "Kategorie"
+        name: "kategorie"
+        widget: "select"
+        options: ["training", "liga", "turnier", "vereinsleben"]
+      - { label: "Beschreibung", name: "beschreibung", widget: "text", required: false }
+
+  - name: ergebnisse
+    label: "Ergebnisse"
+    label_singular: "Ergebnis"
+    folder: "src/content/ergebnisse"
+    create: true
+    slug: "{{slug}}"
+    extension: yaml
+    format: yaml
+    fields:
+      - { label: "Spieltag", name: "spieltag", widget: "string" }
+      - { label: "Datum", name: "datum", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Heim-Mannschaft", name: "heim", widget: "string" }
+      - { label: "Gast-Mannschaft", name: "gast", widget: "string" }
+      - { label: "Ergebnis", name: "ergebnis", widget: "string", hint: "z. B. 6:2" }
+      - { label: "Liga", name: "liga", widget: "string" }
+
+  - name: sponsoren
+    label: "Sponsoren"
+    label_singular: "Sponsor"
+    folder: "src/content/sponsoren"
+    create: true
+    slug: "{{slug}}"
+    extension: yaml
+    format: yaml
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Logo", name: "logo", widget: "image" }
+      - { label: "Website", name: "url", widget: "string", required: false }
+      - label: "Stufe"
+        name: "stufe"
+        widget: "select"
+        options: ["premium", "standard"]
+        default: "standard"
+
+  - name: mannschaften
+    label: "Mannschaften"
+    label_singular: "Mannschaft"
+    folder: "src/content/mannschaften"
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Liga", name: "liga", widget: "string" }
+      - { label: "Kapitän:in", name: "kapitaen", widget: "string", required: false }
+      - { label: "Trainingszeit", name: "trainingszeit", widget: "string", required: false }
+      - { label: "Reihenfolge", name: "reihenfolge", widget: "number", default: 0 }
+      - { label: "Text", name: "body", widget: "markdown" }

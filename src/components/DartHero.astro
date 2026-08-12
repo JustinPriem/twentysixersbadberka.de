@@ -1,0 +1,131 @@
+{/*
+  Hero-Sektion: Ein Dartpfeil fliegt beim Scrollen in die Triple-20, danach
+  löst sich die Dartscheibe auf und der Vereinsname erscheint.
+  Läuft komplett clientseitig (Three.js + GSAP ScrollTrigger), siehe
+  src/lib/dartHero.ts. Respektiert prefers-reduced-motion.
+*/}
+<section class="dart-hero" data-dart-hero aria-label="twentysixersbadberka – Startanimation">
+  <div class="dart-hero__canvas-wrap" data-canvas-wrap aria-hidden="true"></div>
+  <div class="dart-hero__flash" data-impact-flash aria-hidden="true"></div>
+  <div class="dart-hero__vignette" aria-hidden="true"></div>
+
+  <div class="dart-hero__overlay">
+    <p class="dart-hero__cue" data-scroll-cue>Scrollen für den Wurf ↓</p>
+
+    <div class="dart-hero__reveal" data-hero-reveal>
+      <span class="eyebrow">Dartverein · Bad Berka</span>
+      <h1 class="dart-hero__title">
+        twentysixers<span>badberka</span>
+      </h1>
+      <p class="dart-hero__tagline">Wir treffen, was zählt.</p>
+      <a href="#verein-intro" class="btn btn--primary">Verein entdecken</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dart-hero {
+    position: relative;
+    height: 100vh;
+    min-height: 560px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 40%, #17151a 0%, #0b0b0d 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dart-hero__canvas-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .dart-hero__canvas-wrap :global(canvas) {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .dart-hero__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(11, 11, 13, 0.85) 100%);
+  }
+
+  .dart-hero__flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at 62% 42%, rgba(232, 199, 102, 0.9), rgba(232, 199, 102, 0) 60%);
+  }
+
+  .dart-hero__overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding-inline: var(--space-md);
+    pointer-events: none;
+  }
+
+  .dart-hero__cue {
+    position: absolute;
+    bottom: -40vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    animation: bob 2.4s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 8px); }
+  }
+
+  .dart-hero__reveal {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+    pointer-events: auto;
+  }
+
+  .dart-hero__title {
+    font-size: clamp(2.75rem, 8vw, 6rem);
+    margin-bottom: var(--space-xs);
+  }
+  .dart-hero__title span {
+    display: block;
+    color: var(--color-gold);
+    font-size: 0.55em;
+    letter-spacing: 0.08em;
+  }
+
+  .dart-hero__tagline {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-md);
+  }
+
+  /* Fallback für prefers-reduced-motion: kein Pin, kein Canvas-Loop nötig,
+     Inhalt ist sofort sichtbar. */
+  .dart-hero.is-static .dart-hero__reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .dart-hero.is-static {
+    height: auto;
+    min-height: 70vh;
+    padding-block: var(--space-xl);
+  }
+
+  @media (max-width: 640px) {
+    .dart-hero__cue { display: none; }
+  }
+</style>
+
+<script>
+  import { initDartHero } from "../lib/dartHero";
+  initDartHero();
+</script>
