@@ -5,34 +5,67 @@
   src/lib/dartHero.ts. Respektiert prefers-reduced-motion.
 */}
 <section class="dart-hero" data-dart-hero aria-label="twentysixersbadberka – Startanimation">
-  <div class="dart-hero__canvas-wrap" data-canvas-wrap aria-hidden="true"></div>
-  <div class="dart-hero__flash" data-impact-flash aria-hidden="true"></div>
-  <div class="dart-hero__vignette" aria-hidden="true"></div>
+  <div class="dart-hero__sticky">
+    <div class="dart-hero__canvas-wrap" data-canvas-wrap aria-hidden="true"></div>
+    <div class="dart-hero__flash" data-impact-flash aria-hidden="true"></div>
+    <div class="dart-hero__vignette" aria-hidden="true"></div>
 
-  <div class="dart-hero__overlay">
-    <p class="dart-hero__cue" data-scroll-cue>Scrollen für den Wurf ↓</p>
+    <div class="dart-hero__overlay">
+      <p class="dart-hero__cue" data-scroll-cue>Scrollen für den Wurf ↓</p>
 
-    <div class="dart-hero__reveal" data-hero-reveal>
-      <span class="eyebrow" data-hero-eyebrow>Dartverein · Bad Berka</span>
-      <h1 class="dart-hero__title">
-        <span class="dart-hero__title-line" data-split-line>twentysixers</span>
-        <span class="dart-hero__title-line dart-hero__title-line--accent" data-split-line>badberka</span>
-      </h1>
-      <p class="dart-hero__tagline" data-hero-tagline>Wir treffen, was zählt.</p>
-      <a href="#verein-intro" class="btn btn--primary" data-hero-cta>Verein entdecken</a>
+      <div class="dart-hero__reveal" data-hero-reveal>
+        <span class="eyebrow" data-hero-eyebrow>Dartverein · Bad Berka</span>
+        <h1 class="dart-hero__title">
+          <span class="dart-hero__title-line" data-split-line>twentysixers</span>
+          <span class="dart-hero__title-line dart-hero__title-line--accent" data-split-line>badberka</span>
+        </h1>
+        <p class="dart-hero__tagline" data-hero-tagline>Wir treffen, was zählt.</p>
+        <a href="#verein-intro" class="btn btn--primary" data-hero-cta>Verein entdecken</a>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
+  /*
+    Architektur: Statt GSAP per JS nachträglich einen "Pin-Spacer" einfügen zu
+    lassen (was auf langsamen Mobilverbindungen zu einem Sprung führt, wenn
+    das schwere Three.js-Skript erst lädt, NACHDEM schon gescrollt wurde),
+    reserviert die äußere Sektion die komplette Scroll-Strecke schon per
+    reinem CSS – lange bevor JS überhaupt ausgeführt wird. Die innere
+    ".dart-hero__sticky" bleibt währenddessen per position:sticky im
+    Viewport "gepinnt". Ergebnis: Der Seiteninhalt springt nie nachträglich,
+    ganz unabhängig davon, wie lange das Skript zum Laden braucht.
+
+    Die Höhen hier müssen zur Scroll-Distanz in dartHero.ts passen
+    (100% Eigenhöhe + Scroll-Distanz der Animation).
+  */
   .dart-hero {
     position: relative;
+    height: 270vh;
+    height: 270svh;
+    min-height: 900px;
+  }
+
+  @media (max-width: 640px) {
+    .dart-hero {
+      height: 230vh;
+      height: 230svh;
+      min-height: 760px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dart-hero {
+      height: auto;
+      min-height: 0;
+    }
+  }
+
+  .dart-hero__sticky {
+    position: sticky;
+    top: 0;
     height: 100vh;
-    /* 100svh = "small viewport height", passt IMMER in den sichtbaren Bereich
-       (auch mit eingeblendeter mobiler Adressleiste). Verhindert, dass die
-       Dartscheibe beim Scroll-Start durch eine zu groß gemessene 100vh-Höhe
-       teilweise aus dem sichtbaren Bereich rutscht. Browser ohne svh-Support
-       ignorieren die Zeile und bleiben bei 100vh. */
     height: 100svh;
     min-height: 560px;
     overflow: hidden;
@@ -40,6 +73,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dart-hero__sticky {
+      position: static;
+      height: auto;
+      min-height: 70vh;
+      padding-block: var(--space-xl);
+    }
   }
 
   .dart-hero__canvas-wrap {
@@ -120,14 +162,6 @@
   .dart-hero__tagline {
     font-size: 1.1rem;
     margin-bottom: var(--space-md);
-  }
-
-  /* Fallback für prefers-reduced-motion: kein Pin, kein Canvas-Loop nötig,
-     Inhalt ist von Anfang an sichtbar (siehe .dart-hero__reveal oben). */
-  .dart-hero.is-static {
-    height: auto;
-    min-height: 70vh;
-    padding-block: var(--space-xl);
   }
 
   @media (max-width: 640px) {

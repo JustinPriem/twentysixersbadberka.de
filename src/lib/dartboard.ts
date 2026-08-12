@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import { CanvasTexture, SRGBColorSpace } from "three";
 
 /**
  * Erzeugt eine Dartscheibe als Canvas-Textur – kein Bild-Asset nötig.
@@ -181,13 +181,13 @@ export function drawDartboard(
   }
 }
 
-export function createDartboardTexture(size = 1024): { texture: THREE.CanvasTexture; canvas: HTMLCanvasElement } {
+export function createDartboardTexture(size = 1024): { texture: CanvasTexture; canvas: HTMLCanvasElement } {
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   drawDartboard(canvas);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = 4;
   return { texture, canvas };
 }

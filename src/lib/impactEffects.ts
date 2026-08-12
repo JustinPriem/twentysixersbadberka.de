@@ -1,7 +1,19 @@
-import * as THREE from "three";
+import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
+  CanvasTexture,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  Points,
+  PointsMaterial,
+  type Texture,
+  type Vector3,
+} from "three";
 
 /** Weicher, radialer Glow-Punkt als Sprite-Textur (für Funken). */
-export function createGlowSpriteTexture(): THREE.CanvasTexture {
+export function createGlowSpriteTexture(): CanvasTexture {
   const size = 128;
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
@@ -12,18 +24,18 @@ export function createGlowSpriteTexture(): THREE.CanvasTexture {
   grad.addColorStop(1, "rgba(232,199,102,0)");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
-  return new THREE.CanvasTexture(canvas);
+  return new CanvasTexture(canvas);
 }
 
 export interface SparkBurst {
-  points: THREE.Points;
-  material: THREE.PointsMaterial;
+  points: Points;
+  material: PointsMaterial;
   directions: Float32Array;
 }
 
 /** Funkenbündel, das deterministisch über `updateSparkBurst` mit dem Scrollfortschritt animiert wird. */
-export function createSparkBurst(count: number, texture: THREE.Texture): SparkBurst {
-  const geometry = new THREE.BufferGeometry();
+export function createSparkBurst(count: number, texture: Texture): SparkBurst {
+  const geometry = new BufferGeometry();
   const positions = new Float32Array(count * 3);
   const directions = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
@@ -33,25 +45,25 @@ export function createSparkBurst(count: number, texture: THREE.Texture): SparkBu
     directions[i * 3 + 1] = Math.sin(angle) * speed * 0.75 + 0.25;
     directions[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
   }
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  const material = new THREE.PointsMaterial({
+  geometry.setAttribute("position", new BufferAttribute(positions, 3));
+  const material = new PointsMaterial({
     size: 0.085,
     map: texture,
     transparent: true,
     opacity: 0,
     depthWrite: false,
-    blending: THREE.AdditiveBlending,
+    blending: AdditiveBlending,
     sizeAttenuation: true,
   });
-  const points = new THREE.Points(geometry, material);
+  const points = new Points(geometry, material);
   points.visible = false;
   points.frustumCulled = false;
   return { points, material, directions };
 }
 
 /** Positioniert die Funken für den Scrollfortschritt `t` (0–1) innerhalb des Impact-Fensters. */
-export function updateSparkBurst(burst: SparkBurst, origin: THREE.Vector3, t: number) {
-  const posAttr = burst.points.geometry.getAttribute("position") as THREE.BufferAttribute;
+export function updateSparkBurst(burst: SparkBurst, origin: Vector3, t: number) {
+  const posAttr = burst.points.geometry.getAttribute("position") as BufferAttribute;
   const ease = 1 - Math.pow(1 - t, 2);
   const gravity = t * t * 0.55;
   for (let i = 0; i < posAttr.count; i++) {
@@ -69,7 +81,7 @@ export function updateSparkBurst(burst: SparkBurst, origin: THREE.Vector3, t: nu
 }
 
 /** Expandierender Ring als Schockwellen-Effekt am Einschlagpunkt. */
-export function createShockwaveRing(): THREE.Mesh {
+export function createShockwaveRing(): Mesh {
   const size = 256;
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
@@ -84,15 +96,15 @@ export function createShockwaveRing(): THREE.Mesh {
   ctx.arc(cx, cx, r, 0, Math.PI * 2);
   ctx.stroke();
 
-  const texture = new THREE.CanvasTexture(canvas);
-  const material = new THREE.MeshBasicMaterial({
+  const texture = new CanvasTexture(canvas);
+  const material = new MeshBasicMaterial({
     map: texture,
     transparent: true,
     opacity: 0,
     depthWrite: false,
-    blending: THREE.AdditiveBlending,
+    blending: AdditiveBlending,
   });
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+  const mesh = new Mesh(new PlaneGeometry(1, 1), material);
   mesh.visible = false;
   return mesh;
 }

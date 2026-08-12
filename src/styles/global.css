@@ -47,14 +47,14 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* Bewusst KEIN scroll-behavior:smooth auf <html>: GSAP ScrollTrigger liest
+   die Scroll-Position laufend aus, und natives "smooth" scrolling
+   (insbesondere in Kombination mit `scrub`) kann damit in Konflikt geraten
+   und zu ruckeligem/falsch synchronisiertem Verhalten führen – siehe GSAP-
+   Dokumentation zu ScrollTrigger. Sprunghafte Anchor-Links sind der
+   akzeptierte Trade-off dafür, dass die Scroll-Animation zuverlässig läuft. */
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {

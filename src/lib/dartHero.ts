@@ -1,4 +1,16 @@
-import * as THREE from "three";
+import {
+  AmbientLight,
+  CanvasTexture,
+  DirectionalLight,
+  type Material,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Scene,
+  Vector3,
+  WebGLRenderer,
+} from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -11,7 +23,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 const FLIGHT_END = 0.5;
 const IMPACT_PEAK = 0.58;
 const IMPACT_END = 0.66;
-const EMBED_DIR = new THREE.Vector3(0, 0, -1);
+const EMBED_DIR = new Vector3(0, 0, -1);
 const BASE_FOV_DEG = 42;
 const BOARD_SIZE = 3.2;
 
@@ -52,7 +64,6 @@ export function initDartHero() {
   const sparkCount = isMobile ? 14 : 26;
   const boardTextureSize = isMobile ? 640 : 1024;
   const dprCap = isMobile ? 1.5 : 2;
-  const pinEnd = isMobile ? "+=130%" : "+=170%";
 
   // iOS-Adressleisten-Resize soll ScrollTrigger nicht zu Sprüngen verleiten.
   ScrollTrigger.config({ ignoreMobileResize: true });
@@ -79,24 +90,24 @@ export function initDartHero() {
     .to(ctaEl, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.6)" }, "-=0.35");
 
   // ---- Three.js-Szene ----
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(BASE_FOV_DEG, 1, 0.1, 100);
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(BASE_FOV_DEG, 1, 0.1, 100);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
   canvasWrap.appendChild(renderer.domElement);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-  const key = new THREE.DirectionalLight(0xfff3d6, 1.1);
+  scene.add(new AmbientLight(0xffffff, 0.55));
+  const key = new DirectionalLight(0xfff3d6, 1.1);
   key.position.set(2, 2, 4);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xcda434, 0.6);
+  const rim = new DirectionalLight(0xcda434, 0.6);
   rim.position.set(-2, -1, -2);
   scene.add(rim);
 
   const { texture, canvas: boardCanvas } = createDartboardTexture(boardTextureSize);
-  const boardMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-  const board = new THREE.Mesh(new THREE.PlaneGeometry(BOARD_SIZE, BOARD_SIZE), boardMat);
+  const boardMat = new MeshBasicMaterial({ map: texture, transparent: true });
+  const board = new Mesh(new PlaneGeometry(BOARD_SIZE, BOARD_SIZE), boardMat);
   scene.add(board);
 
   const glowCanvas = document.createElement("canvas");
@@ -109,9 +120,9 @@ export function initDartHero() {
     gctx.fillStyle = grad;
     gctx.fillRect(0, 0, 512, 512);
   }
-  const glowTex = new THREE.CanvasTexture(glowCanvas);
-  const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false });
-  const glow = new THREE.Mesh(new THREE.PlaneGeometry(BOARD_SIZE * 2.2, BOARD_SIZE * 2.2), glowMat);
+  const glowTex = new CanvasTexture(glowCanvas);
+  const glowMat = new MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false });
+  const glow = new Mesh(new PlaneGeometry(BOARD_SIZE * 2.2, BOARD_SIZE * 2.2), glowMat);
   glow.position.z = -0.3;
   scene.add(glow);
 
@@ -131,16 +142,16 @@ export function initDartHero() {
   const HIGHLIGHT: Highlight = { sectorValue: 20, ring: "triple" };
   const hit2D = pointForHighlight(HIGHLIGHT);
   const boardHalf = BOARD_SIZE / 2;
-  const hitWorld = new THREE.Vector3(hit2D.x * boardHalf, hit2D.y * boardHalf, 0.03);
+  const hitWorld = new Vector3(hit2D.x * boardHalf, hit2D.y * boardHalf, 0.03);
 
-  const P0 = new THREE.Vector3(1.9, -1.6, 3.4);
-  const P1 = new THREE.Vector3(1.0, 0.3, 1.6);
-  const P2 = new THREE.Vector3(0.25, hitWorld.y + 0.5, 0.6);
+  const P0 = new Vector3(1.9, -1.6, 3.4);
+  const P1 = new Vector3(1.0, 0.3, 1.6);
+  const P2 = new Vector3(0.25, hitWorld.y + 0.5, 0.6);
   const P3 = hitWorld.clone();
 
-  const tmpPos = new THREE.Vector3();
-  const tmpTangent = new THREE.Vector3();
-  const tmpTarget = new THREE.Vector3();
+  const tmpPos = new Vector3();
+  const tmpTangent = new Vector3();
+  const tmpTarget = new Vector3();
 
   let highlightIntensity = 0;
   let lastDrawnIntensity = -1;
@@ -201,7 +212,7 @@ export function initDartHero() {
         cubicBezierTangent(gt, P0, P1, P2, P3, tmpTarget).normalize();
         ghost.lookAt(tmpPos.clone().add(tmpTarget));
         const fade = 1 - i / trailPool.length;
-        (ghost.material as THREE.MeshBasicMaterial).opacity = fade * 0.35 * (1 - t * 0.3);
+        (ghost.material as MeshBasicMaterial).opacity = fade * 0.35 * (1 - t * 0.3);
         ghost.visible = true;
       }
     } else {
@@ -233,7 +244,7 @@ export function initDartHero() {
         shockwave.position.copy(hitWorld);
         const ringScale = 0.3 + impactLocal * 2.2;
         shockwave.scale.setScalar(ringScale);
-        (shockwave.material as THREE.MeshBasicMaterial).opacity = impactShape * 0.8;
+        (shockwave.material as MeshBasicMaterial).opacity = impactShape * 0.8;
       } else {
         sparks.points.visible = false;
         shockwave.visible = false;
@@ -263,8 +274,8 @@ export function initDartHero() {
 
     dart.visible = boardOpacity > 0.02;
     dart.traverse((obj) => {
-      const mesh = obj as THREE.Mesh;
-      const mat = mesh.material as THREE.Material | undefined;
+      const mesh = obj as Mesh;
+      const mat = mesh.material as Material | undefined;
       if (mat) mat.opacity = boardOpacity;
     });
 
@@ -285,15 +296,24 @@ export function initDartHero() {
 
   render(0);
 
-  ScrollTrigger.create({
+  // Kein `pin: true` mehr: Die äußere Sektion reserviert ihre Scroll-Strecke
+  // bereits per CSS (siehe DartHero.astro), die innere ".dart-hero__sticky"
+  // bleibt rein über `position: sticky` im Viewport. So muss GSAP nichts
+  // nachträglich in den Layout-Fluss einfügen – kein Sprung, egal wie spät
+  // dieses Skript auf langsamen Verbindungen lädt. "bottom bottom" ergibt
+  // automatisch dieselbe Scroll-Distanz wie die per CSS reservierte Höhe.
+  const trigger = ScrollTrigger.create({
     trigger: heroSection,
     start: "top top",
-    end: pinEnd,
-    pin: true,
+    end: "bottom bottom",
     scrub: 0.6,
-    anticipatePin: 1,
     onUpdate: (self) => render(self.progress),
   });
+
+  // Sicherheitshalber trotzdem hart auf den tatsächlichen Fortschritt
+  // synchronisieren, sobald der Trigger existiert (z. B. falls die Seite
+  // beim Skriptstart schon mitten in der reservierten Scroll-Strecke steht).
+  render(trigger.progress);
 
   let resizeTimer: number | undefined;
   function handleResize() {
@@ -301,23 +321,23 @@ export function initDartHero() {
     resizeTimer = window.setTimeout(() => {
       applySize();
       ScrollTrigger.refresh();
+      render(trigger.progress);
     }, 120);
   }
   window.addEventListener("resize", handleResize);
-  // iOS/Android verändern die sichtbare Höhe (Adressleiste) oft erst nach dem
-  // ersten Layout, und Web-Fonts können die Header-Höhe nachträglich
-  // verschieben. Einmalig kurz nach dem Laden nachjustieren, damit die
-  // Scheibe nicht durch eine veraltete Messung aus dem Bild rutscht.
-  window.addEventListener(
-    "load",
-    () => {
-      applySize();
-      ScrollTrigger.refresh();
-    },
-    { once: true }
-  );
-  window.setTimeout(() => {
+
+  // Sicherheitsnetz für langsame Mobilgeräte/Verbindungen: Dieses Skript ist
+  // groß (Three.js + GSAP) und kann erst laufen, NACHDEM Nutzer:innen schon
+  // losgescrollt haben. Außerdem verändern iOS/Android die sichtbare Höhe
+  // (Adressleiste) oft erst nach dem ersten Layout, und Web-Fonts können die
+  // Header-Höhe nachträglich verschieben. Mehrfach kurz nach dem Start
+  // nachjustieren und dabei IMMER auf den echten Scroll-Fortschritt
+  // synchronisieren, statt bei einem veralteten Frame hängen zu bleiben.
+  function resync() {
     applySize();
     ScrollTrigger.refresh();
-  }, 600);
+    render(trigger.progress);
+  }
+  window.addEventListener("load", resync, { once: true });
+  [100, 400, 900, 1800].forEach((delay) => window.setTimeout(resync, delay));
 }
