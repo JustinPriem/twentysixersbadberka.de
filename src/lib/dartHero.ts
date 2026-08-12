@@ -322,6 +322,20 @@ export function initDartHero() {
 
   render(0);
 
+  // Der Sticky-Header nimmt oben Platz weg, dadurch startet "top top" erst,
+  // nachdem man schon etwa eine Header-Höhe weit gescrollt hat – die
+  // Animation würde also erst mit spürbarer Verzögerung reagieren. Der
+  // Offset zieht den Start exakt um die aktuelle Header-Höhe vor, damit
+  // Fortschritt 0 wirklich bei Scroll-Position 0 liegt und der Pfeil sich
+  // schon beim allerersten Scroll-Pixel bewegt. Als Funktion, damit
+  // ScrollTrigger.refresh() das bei Breakpoint-Wechseln (Header-Höhe ändert
+  // sich mobil/desktop) neu berechnet.
+  const headerEl = document.querySelector<HTMLElement>("[data-site-header]");
+  function scrollStart() {
+    const headerHeight = headerEl?.getBoundingClientRect().height ?? 0;
+    return `top top+=${headerHeight}`;
+  }
+
   // Kein `pin: true` mehr: Die äußere Sektion reserviert ihre Scroll-Strecke
   // bereits per CSS (siehe DartHero.astro), die innere ".dart-hero__sticky"
   // bleibt rein über `position: sticky` im Viewport. So muss GSAP nichts
@@ -330,7 +344,7 @@ export function initDartHero() {
   // automatisch dieselbe Scroll-Distanz wie die per CSS reservierte Höhe.
   const trigger = ScrollTrigger.create({
     trigger: hero,
-    start: "top top",
+    start: scrollStart,
     end: "bottom bottom",
     scrub: 0.6,
     onUpdate: (self) => render(self.progress),
