@@ -86,19 +86,3 @@ collections:
         widget: "select"
         options: ["premium", "standard"]
         default: "standard"
-
-  - name: mannschaften
-    label: "Mannschaften"
-    label_singular: "Mannschaft"
-    folder: "src/content/mannschaften"
-    create: true
-    slug: "{{slug}}"
-    extension: md
-    format: frontmatter
-    fields:
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Liga", name: "liga", widget: "string" }
-      - { label: "Kapitän:in", name: "kapitaen", widget: "string", required: false }
-      - { label: "Trainingszeit", name: "trainingszeit", widget: "string", required: false }
-      - { label: "Reihenfolge", name: "reihenfolge", widget: "number", default: 0 }
-      - { label: "Text", name: "body", widget: "markdown" }

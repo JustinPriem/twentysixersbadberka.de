@@ -49,15 +49,4 @@ const sponsoren = defineCollection({
   }),
 });
 
-const mannschaften = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/mannschaften" }),
-  schema: z.object({
-    name: z.string(),
-    liga: z.string(),
-    kapitaen: z.string().optional(),
-    trainingszeit: z.string().optional(),
-    reihenfolge: z.number().default(0),
-  }),
-});
-
-export const collections = { news, termine, ergebnisse, sponsoren, mannschaften };
+export const collections = { news, termine, ergebnisse, sponsoren };

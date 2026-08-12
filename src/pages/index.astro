@@ -27,20 +27,20 @@ const dateFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: 
         <span class="eyebrow">Der Verein</span>
         <h2>Aus Bad Berka, für den Dartsport.</h2>
         <p>
-          twentysixersbadberka ist der Dartverein aus Bad Berka – benannt nach der höchsten möglichen
-          Punktzahl mit drei Darts. Bei uns treffen sich Anfänger:innen und Ligaspieler:innen, um
-          gemeinsam zu trainieren, sich in der Liga zu messen und den Dartsport in der Region zu fördern.
+          twentysixersbadberka ist der Dartverein aus Bad Berka. Bei uns treffen sich Anfänger:innen
+          und Ligaspieler:innen, um gemeinsam zu trainieren, sich in der Liga zu messen und den
+          Dartsport in der Region zu fördern.
         </p>
         <a href="/verein/" class="btn btn--ghost">Mehr über uns</a>
       </div>
       <div class="reveal stat-grid">
         <div class="card">
-          <p class="stat-number">180</p>
-          <p>Punkte für drei Triple-20 – unser Namensgeber</p>
+          <p class="stat-highlight">Training</p>
+          <p>Wöchentlich gemeinsam an der Scheibe – für Einsteiger:innen und Fortgeschrittene.</p>
         </div>
         <div class="card">
-          <p class="stat-number">3</p>
-          <p>Mannschaften im Liga-Spielbetrieb</p>
+          <p class="stat-highlight">Community</p>
+          <p>Dartsport, der Spaß macht und verbindet – weils Laune macht.</p>
         </div>
       </div>
     </div>
@@ -109,11 +109,13 @@ const dateFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: 
     display: grid;
     gap: var(--space-sm);
   }
-  .stat-number {
+  .stat-highlight {
     font-family: var(--font-display);
-    font-size: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 1.5rem;
     color: var(--color-gold);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
   }
   .section-head {
     margin-bottom: var(--space-md);
