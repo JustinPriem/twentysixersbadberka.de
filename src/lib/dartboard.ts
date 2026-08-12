@@ -4,6 +4,12 @@ import { CanvasTexture, SRGBColorSpace } from "three";
  * Erzeugt eine Dartscheibe als Canvas-Textur – kein Bild-Asset nötig.
  * Kreisfläche ist deckend, der Rest des Canvas bleibt transparent, damit
  * das Plane-Mesh in Three.js wie eine runde Scheibe wirkt.
+ *
+ * Proportionen orientieren sich an einer echten Steel-Dart-Wettkampfscheibe
+ * (Bull/Single/Triple/Single/Double etwa im Verhältnis 6:94:8:53:8 der
+ * Spielfläche). Der Zahlenkranz sitzt als eigener, spürbar breiter Ring
+ * außerhalb des Doubles – vorher lagen die Zahlen zu nah am goldenen Rand
+ * und wurden davon angeschnitten.
  */
 
 export const SECTOR_ORDER = [
@@ -14,15 +20,15 @@ export const SEGMENT_ANGLE = (Math.PI * 2) / 20;
 
 // Ring-Radien als Anteil des Canvas-Radius R.
 export const RINGS = {
-  bullInner: 0.045,
-  bullOuter: 0.1,
-  single1: 0.58,
-  tripleInner: 0.58,
-  tripleOuter: 0.64,
-  single2: 0.9,
-  doubleInner: 0.9,
-  doubleOuter: 0.96,
-  numbers: 1.0,
+  bullInner: 0.038,
+  bullOuter: 0.095,
+  tripleInner: 0.44,
+  tripleOuter: 0.49,
+  doubleInner: 0.7,
+  doubleOuter: 0.75,
+  numbersInner: 0.78,
+  numbersOuter: 0.93,
+  wire: 0.965,
 };
 
 const COLOR_RED = "#c8202c";
@@ -30,6 +36,8 @@ const COLOR_GREEN = "#0e7a45";
 const COLOR_BLACK = "#141216";
 const COLOR_CREAM = "#efe6cd";
 const COLOR_GOLD = "#cda434";
+const COLOR_GOLD_BRIGHT = "#e8c766";
+const COLOR_GOLD_DARK = "#8a6a1f";
 
 export interface Highlight {
   sectorValue: number;
@@ -52,7 +60,7 @@ export function pointForHighlight(h: Highlight): { x: number; y: number } {
   const radiusMap = {
     triple: (RINGS.tripleInner + RINGS.tripleOuter) / 2,
     double: (RINGS.doubleInner + RINGS.doubleOuter) / 2,
-    single: (RINGS.bullOuter + RINGS.single1) / 2,
+    single: (RINGS.bullOuter + RINGS.tripleInner) / 2,
     bull: RINGS.bullInner / 2,
   };
   const r = radiusMap[h.ring];
@@ -93,9 +101,9 @@ export function drawDartboard(
 
   ctx.clearRect(0, 0, size, size);
 
-  // Äußerer Rahmen (dünner Golddraht + dunkler Sisal-Ton)
+  // Schwarzer Grundkörper bis knapp unter den Golddraht (Zahlenkranz-Fläche).
   ctx.beginPath();
-  ctx.arc(cx, cy, R * RINGS.numbers, 0, Math.PI * 2);
+  ctx.arc(cx, cy, R * RINGS.wire, 0, Math.PI * 2);
   ctx.fillStyle = COLOR_BLACK;
   ctx.fill();
 
@@ -106,9 +114,9 @@ export function drawDartboard(
     const singleColor = isEven ? COLOR_BLACK : COLOR_CREAM;
     const ringColor = isEven ? COLOR_RED : COLOR_GREEN;
 
-    drawWedge(ctx, cx, cy, R, RINGS.bullOuter, RINGS.single1, start, end, singleColor);
+    drawWedge(ctx, cx, cy, R, RINGS.bullOuter, RINGS.tripleInner, start, end, singleColor);
     drawWedge(ctx, cx, cy, R, RINGS.tripleInner, RINGS.tripleOuter, start, end, ringColor);
-    drawWedge(ctx, cx, cy, R, RINGS.tripleOuter, RINGS.single2, start, end, singleColor);
+    drawWedge(ctx, cx, cy, R, RINGS.tripleOuter, RINGS.doubleInner, start, end, singleColor);
     drawWedge(ctx, cx, cy, R, RINGS.doubleInner, RINGS.doubleOuter, start, end, ringColor);
   }
 
@@ -122,9 +130,10 @@ export function drawDartboard(
   ctx.fillStyle = COLOR_RED;
   ctx.fill();
 
-  // Dünne Trennlinien
-  ctx.strokeStyle = "rgba(20,18,22,0.9)";
-  ctx.lineWidth = size * 0.0018;
+  // Trennlinien ("Spider") – vom Bull bis zum äußeren Rand des Doubles,
+  // etwas kräftiger als zuvor für einen echten Drahtgitter-Look.
+  ctx.strokeStyle = "rgba(15,14,17,0.95)";
+  ctx.lineWidth = size * 0.0026;
   for (let i = 0; i < 20; i++) {
     const angle = sectorCenterAngle(i) - SEGMENT_ANGLE / 2;
     ctx.beginPath();
@@ -132,23 +141,39 @@ export function drawDartboard(
     ctx.lineTo(cx + Math.cos(angle) * R * RINGS.doubleOuter, cy + Math.sin(angle) * R * RINGS.doubleOuter);
     ctx.stroke();
   }
+  // Dünner Ring exakt am Rand von Triple- und Double-Zone, wie das
+  // umlaufende Drahtband auf echten Scheiben.
+  ctx.strokeStyle = "rgba(15,14,17,0.9)";
+  ctx.lineWidth = size * 0.0018;
+  for (const ringFrac of [RINGS.bullOuter, RINGS.tripleInner, RINGS.tripleOuter, RINGS.doubleInner, RINGS.doubleOuter]) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * ringFrac, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 
-  // Zahlenkranz
+  // Zahlenkranz – eigener, breiter schwarzer Ring außerhalb des Doubles,
+  // damit die Ziffern nicht mehr mit dem Golddraht kollidieren.
   ctx.fillStyle = COLOR_CREAM;
-  ctx.font = `${Math.round(size * 0.045)}px Oswald, Arial Narrow, sans-serif`;
+  ctx.font = `700 ${Math.round(size * 0.052)}px Oswald, Arial Narrow, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  const numbersRadius = R * ((RINGS.numbersInner + RINGS.numbersOuter) / 2);
   SECTOR_ORDER.forEach((value, i) => {
     const angle = sectorCenterAngle(i);
-    const r = R * ((RINGS.doubleOuter + RINGS.numbers) / 2);
-    ctx.fillText(String(value), cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+    ctx.fillText(String(value), cx + Math.cos(angle) * numbersRadius, cy + Math.sin(angle) * numbersRadius);
   });
 
-  // Golddraht-Kontur
+  // Golddraht-Kontur: zwei feine Linien für einen leichten Metall-Bevel
+  // statt einer flachen einzelnen Linie.
   ctx.beginPath();
-  ctx.arc(cx, cy, R * RINGS.numbers - size * 0.002, 0, Math.PI * 2);
-  ctx.strokeStyle = COLOR_GOLD;
-  ctx.lineWidth = size * 0.006;
+  ctx.arc(cx, cy, R * RINGS.wire, 0, Math.PI * 2);
+  ctx.strokeStyle = COLOR_GOLD_DARK;
+  ctx.lineWidth = size * 0.009;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * RINGS.wire - size * 0.0025, 0, Math.PI * 2);
+  ctx.strokeStyle = COLOR_GOLD_BRIGHT;
+  ctx.lineWidth = size * 0.0035;
   ctx.stroke();
 
   // Highlight (z. B. Triple-20 beim Einschlag)
@@ -160,7 +185,7 @@ export function drawDartboard(
     const ringBounds: Record<Highlight["ring"], [number, number]> = {
       triple: [RINGS.tripleInner, RINGS.tripleOuter],
       double: [RINGS.doubleInner, RINGS.doubleOuter],
-      single: [RINGS.bullOuter, RINGS.single1],
+      single: [RINGS.bullOuter, RINGS.tripleInner],
       bull: [0, RINGS.bullInner],
     };
     const [inner, outer] = ringBounds[opts.highlight.ring];
