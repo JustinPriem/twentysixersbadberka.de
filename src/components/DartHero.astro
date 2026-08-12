@@ -13,12 +13,13 @@
     <p class="dart-hero__cue" data-scroll-cue>Scrollen für den Wurf ↓</p>
 
     <div class="dart-hero__reveal" data-hero-reveal>
-      <span class="eyebrow">Dartverein · Bad Berka</span>
+      <span class="eyebrow" data-hero-eyebrow>Dartverein · Bad Berka</span>
       <h1 class="dart-hero__title">
-        twentysixers<span>badberka</span>
+        <span class="dart-hero__title-line" data-split-line>twentysixers</span>
+        <span class="dart-hero__title-line dart-hero__title-line--accent" data-split-line>badberka</span>
       </h1>
-      <p class="dart-hero__tagline">Wir treffen, was zählt.</p>
-      <a href="#verein-intro" class="btn btn--primary">Verein entdecken</a>
+      <p class="dart-hero__tagline" data-hero-tagline>Wir treffen, was zählt.</p>
+      <a href="#verein-intro" class="btn btn--primary" data-hero-cta>Verein entdecken</a>
     </div>
   </div>
 </section>
@@ -87,20 +88,27 @@
   }
 
   .dart-hero__reveal {
-    opacity: 0;
-    transform: translateY(24px) scale(0.92);
+    /* Kein statisches opacity:0 hier: die Kind-Elemente (Buchstaben, Eyebrow,
+       Tagline, CTA) werden von GSAP einzeln versteckt/animiert. Fällt JS aus,
+       bleibt der Text so von Anfang an lesbar statt dauerhaft unsichtbar. */
     pointer-events: auto;
   }
 
   .dart-hero__title {
     font-size: clamp(2.75rem, 8vw, 6rem);
     margin-bottom: var(--space-xs);
+    perspective: 500px;
   }
-  .dart-hero__title span {
+  .dart-hero__title-line {
     display: block;
+  }
+  .dart-hero__title-line--accent {
     color: var(--color-gold);
     font-size: 0.55em;
     letter-spacing: 0.08em;
+  }
+  .dart-hero__title :global(.char) {
+    display: inline-block;
   }
 
   .dart-hero__tagline {
@@ -109,11 +117,7 @@
   }
 
   /* Fallback für prefers-reduced-motion: kein Pin, kein Canvas-Loop nötig,
-     Inhalt ist sofort sichtbar. */
-  .dart-hero.is-static .dart-hero__reveal {
-    opacity: 1;
-    transform: none;
-  }
+     Inhalt ist von Anfang an sichtbar (siehe .dart-hero__reveal oben). */
   .dart-hero.is-static {
     height: auto;
     min-height: 70vh;

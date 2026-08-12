@@ -57,6 +57,30 @@ export function createDart(): THREE.Group {
   return group;
 }
 
+/**
+ * Erzeugt einen Pool leichtgewichtiger "Geister"-Meshes für die Bewegungsspur
+ * des Dartpfeils. Bewusst simple Geometrie (ein gestreckter Kegel statt der
+ * vollen Dart-Gruppe), da davon mehrere gleichzeitig gerendert werden.
+ */
+export function createTrailPool(count: number): THREE.Mesh[] {
+  const geometry = new THREE.ConeGeometry(0.02, 0.55, 8);
+  geometry.rotateX(-Math.PI / 2);
+  const meshes: THREE.Mesh[] = [];
+  for (let i = 0; i < count; i++) {
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xe8c766,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.visible = false;
+    meshes.push(mesh);
+  }
+  return meshes;
+}
+
 /** Kubische Bezierkurve, gibt Position bei t in [0,1] zurück. */
 export function cubicBezier(
   t: number,
