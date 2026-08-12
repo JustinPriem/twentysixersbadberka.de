@@ -4,7 +4,7 @@ Vereinswebsite für **twentysixersbadberka** – den Dartverein aus Bad Berka.
 
 Gebaut mit [Astro](https://astro.build) (statischer Export), einer 3D-Scroll-Animation
 (Three.js + GSAP ScrollTrigger) auf der Startseite und [Decap CMS](https://decapcms.org) zur
-Content-Pflege durch den Vorstand. Deployment erfolgt per GitHub Actions per FTP auf ein
+Content-Pflege durch den Vorstand. Deployment erfolgt per GitHub Actions per SFTP auf ein
 Strato-PowerWeb-Hosting.
 
 ## Tech-Stack
@@ -13,7 +13,7 @@ Strato-PowerWeb-Hosting.
 - **[Three.js](https://threejs.org) + [GSAP ScrollTrigger](https://gsap.com/scrolltrigger/)** – die Dartpfeil-Scroll-Animation im Hero
 - **[Decap CMS](https://decapcms.org)** – Git-basiertes CMS unter `/admin` für News, Termine, Ergebnisse, Sponsoren, Mannschaften
 - **PHP** (`public/contact.php`) – Mailversand des Kontaktformulars (läuft auf Strato-PowerWeb)
-- **GitHub Actions** – Build + FTPS-Deployment zu Strato
+- **GitHub Actions** – Build + SFTP-Deployment zu Strato
 
 ## Lokale Entwicklung
 
@@ -37,7 +37,7 @@ src/
 public/
   admin/             Decap-CMS-Oberfläche (config.yml + index.html)
   contact.php        Kontaktformular-Handler für Strato
-.github/workflows/  deploy.yml – Build & FTPS-Deploy
+.github/workflows/  deploy.yml – Build & SFTP-Deploy
 ```
 
 ## Die Hero-Animation
@@ -71,18 +71,26 @@ automatisch neu und lädt sie zu Strato hoch.
 ## Deployment (Strato)
 
 Der Workflow `.github/workflows/deploy.yml` baut das Projekt bei jedem Push auf `main` und lädt
-den Inhalt von `dist/` per FTPS zu Strato hoch. Dafür müssen folgende **Repository-Secrets**
-gesetzt werden (GitHub → Settings → Secrets and variables → Actions):
+den Inhalt von `dist/` per **SFTP** (SSH File Transfer Protocol, Port 22) zu Strato hoch. Aktuelle
+Strato-Hosting-Pakete bieten nur noch SFTP an, kein klassisches FTP/FTPS mehr. Dafür müssen
+folgende **Repository-Secrets** gesetzt werden (GitHub → Settings → Secrets and variables →
+Actions):
 
 | Secret                   | Beschreibung                                             |
 | ------------------------ | --------------------------------------------------------- |
-| `STRATO_FTP_SERVER`      | FTP-Host, z. B. `ftp.twentysixersbadberka.de`             |
-| `STRATO_FTP_USERNAME`    | FTP-Benutzername aus dem Strato-Kundenmenü                |
-| `STRATO_FTP_PASSWORD`    | FTP-Passwort                                               |
+| `STRATO_FTP_SERVER`      | Hostname, z. B. `ftp.twentysixersbadberka.de` (ohne `sftp://`-Prefix) |
+| `STRATO_FTP_USERNAME`    | Zugangsdaten aus dem Strato-Kundenmenü                     |
+| `STRATO_FTP_PASSWORD`    | Passwort                                                    |
 | `STRATO_FTP_SERVER_DIR`  | Zielordner im Webspace (häufig `/` oder `/htdocs/`)        |
 
 Die Domain `twentysixersbadberka.de` muss im Strato-Kundenmenü auf den Webspace zeigen, in den
 deployed wird.
+
+**Zum manuellen Testen** (z. B. mit [FileZilla](https://filezilla-project.org/)): Im Site
+Manager als Protokoll explizit **"SFTP – SSH File Transfer Protocol"** wählen (nicht "FTP" und
+nicht "FTP - FTPS"), Port `22`, Logon Type "Normal" mit Benutzername/Passwort. Wird stattdessen
+reines FTP gewählt, meldet Strato den Fehler "Kann keine FTP-Verbindung zu einem SFTP-Server
+aufbauen."
 
 ## Kontaktformular
 

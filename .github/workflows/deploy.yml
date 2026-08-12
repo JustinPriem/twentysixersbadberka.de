@@ -46,17 +46,22 @@ jobs:
           name: dist
           path: dist
 
+      # Strato bietet bei aktuellen Hosting-Paketen nur noch SFTP (SSH File
+      # Transfer Protocol, Port 22) an, kein klassisches FTP/FTPS mehr –
+      # daher eine SFTP-fähige Action statt der ursprünglichen FTP-Action.
+      #
       # Erwartet folgende Repository-Secrets (Settings → Secrets and variables → Actions):
-      #   STRATO_FTP_SERVER    z. B. ftp.twentysixersbadberka.de
-      #   STRATO_FTP_USERNAME  FTP-Zugangsdaten aus dem Strato-Kundenmenü
+      #   STRATO_FTP_SERVER    Hostname, z. B. ftp.twentysixersbadberka.de (ohne sftp://-Prefix)
+      #   STRATO_FTP_USERNAME  Zugangsdaten aus dem Strato-Kundenmenü
       #   STRATO_FTP_PASSWORD
       #   STRATO_FTP_SERVER_DIR  Zielordner im Webspace, i. d. R. "/" oder "/htdocs/"
-      - name: Per FTPS zu Strato hochladen
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Per SFTP zu Strato hochladen
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
         with:
           server: ${{ secrets.STRATO_FTP_SERVER }}
+          port: 22
           username: ${{ secrets.STRATO_FTP_USERNAME }}
           password: ${{ secrets.STRATO_FTP_PASSWORD }}
-          server-dir: ${{ secrets.STRATO_FTP_SERVER_DIR }}
-          local-dir: dist/
-          protocol: ftps
+          local_path: "dist/*"
+          remote_path: ${{ secrets.STRATO_FTP_SERVER_DIR }}
+          sftp_only: true
