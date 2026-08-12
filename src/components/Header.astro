@@ -46,10 +46,22 @@ const nav = [
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(11, 11, 13, 0.75);
-    backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(243, 236, 216, 0.08);
     transition: background 0.3s ease;
+  }
+  /* backdrop-filter absichtlich auf einem eigenen ::before statt direkt auf
+     .site-header: filter/backdrop-filter auf einem Vorfahren erzeugt einen
+     neuen Containing Block für position:fixed-Kinder (siehe .primary-nav
+     unten) – dadurch würde das mobile Menü nicht mehr relativ zum
+     Bildschirm, sondern relativ zur (kleinen) Header-Leiste positioniert.
+     Bekannte CSS-Falle, hat auf echten Mobilgeräten das Menü kaputt gemacht. */
+  .site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(11, 11, 13, 0.75);
+    backdrop-filter: blur(10px);
   }
 
   .site-header__inner {
@@ -113,6 +125,12 @@ const nav = [
     border: none;
     cursor: pointer;
     padding: 0.5rem;
+    /* Muss über dem geöffneten .primary-nav-Panel liegen (position:fixed
+       ohne z-index stapelt sich sonst standardmäßig über normalem,
+       unpositioniertem Inhalt) – sonst lässt sich das Menü nicht mehr
+       schließen, weil das Panel den Button überdeckt. */
+    position: relative;
+    z-index: 101;
   }
   .nav-toggle__bar {
     width: 22px;
@@ -136,6 +154,7 @@ const nav = [
     .primary-nav {
       position: fixed;
       inset: 0 0 0 30%;
+      z-index: 100;
       background: var(--color-board-raised);
       transform: translateX(100%);
       transition: transform 0.35s var(--ease-out);
